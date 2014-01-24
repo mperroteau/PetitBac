@@ -1,0 +1,44 @@
+﻿<UserControl x:Class="PetitBac.Pages.Login"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mui="http://firstfloorsoftware.com/ModernUI"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid Style="{StaticResource ContentRoot}">
+        <ScrollViewer>
+            <StackPanel MinWidth="200">
+                <TextBlock Style="{StaticResource Heading2}" ><Run Language="fr-fr" Text="CONNECTION"/></TextBlock>
+                <TextBlock ><Run Language="fr-fr" Text="Pour vous connecter, saisir l'adresse ip du serveur ainsi qu'un login."/></TextBlock>
+
+                <Grid Width="300">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150" />
+                        <!--prenom feminin-->
+                        <ColumnDefinition Width="150" />
+                        <!--prenom masculin-->
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition/>
+                        <RowDefinition Height="2"/>
+                        <RowDefinition />
+                        
+                    </Grid.RowDefinitions>
+                    
+
+                    <TextBlock Grid.Column="0" Grid.Row="1" Text="Adresse IP du serveur"/>
+                    <TextBlock Grid.Column="0" Grid.Row="3" Text="Login"/>
+                    <TextBox Grid.Column="1" Grid.Row="1" Name="IPServer" Width="128"/>
+                    <TextBox Grid.Column="1" Grid.Row="3" Name="UserLogin" Width="128"/>
+                    
+                </Grid>
+
+                <!--<TextBox Name="UserLogin" Width="128"/>-->
+                <TextBlock Name="LogError" Foreground="Red" ></TextBlock>
+                <Button Width="128" Click="UserConnection" Content="Connection"/>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
