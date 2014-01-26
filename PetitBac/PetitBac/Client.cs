@@ -4,8 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
+using System.IO; 
+
 namespace PetitBac
 {
     //Singleton servant à déterminer un NetClient pour l'ensemble du programme
@@ -20,8 +24,10 @@ namespace PetitBac
         private byte[] recByte = new byte[1024];
 
         //Identifiants du client
-        private StringBuilder myBuilder;
+        private StringBuilder myBuilder = new StringBuilder();
         private string userID, name;
+
+        public List<Game> ClientGames = new List<Game>();
 
         private Client()
         {
@@ -64,36 +70,118 @@ namespace PetitBac
         //Method to get a message from the server
         public void GetMsgServer(IAsyncResult ar)
         {
-            int byteCount;
+            while (true)
+            {
+                int byteCount;
+                try
+                {
+                    //Get the number of Bytes received
+                    byteCount = (client.GetStream()).EndRead(ar);
+                    //If bytes received is less than 1 it means
+                    //the server has disconnected
+                    if (byteCount < 1)
+                    {
+                        //Close the socket
+                        Disconnect();
+                        //MessageBox.Show("Disconnected!!");
+                        return;
+                    }
+                    //Send the Server message for parsing
+                    BuildText(recByte, 0, byteCount);
+                    //Unless its the first time start Asynchronous Read
+                    //Again
+
+                    if (firstTime)
+                    {
+                        AsyncCallback GetMsgCallback = new AsyncCallback(GetMsgServer);
+                        (client.GetStream()).BeginRead(recByte, 0, 1024, GetMsgCallback, this);
+                        firstTime = false;
+                    }
+                    
+                }
+                catch (Exception ed)
+                {
+                    Disconnect();
+                    //MessageBox.Show("Exception Occured :" + ed.ToString());
+                }
+            }
+        }
+
+        public void CallbackMethod(IAsyncResult ar)
+        {
             try
             {
-                //Get the number of Bytes received
-                byteCount = (client.GetStream()).EndRead(ar);
-                //If bytes received is less than 1 it means
-                //the server has disconnected
-                if (byteCount < 1)
-                {
-                    //Close the socket
-                    //Disconnect();
+                // Retrieve the delegate.
+                AsyncResult result = (AsyncResult)ar;
+                //AsyncMethodCaller caller = (AsyncMethodCaller)result.AsyncDelegate;
+                AsyncCallback caller = (AsyncCallback)result.AsyncDelegate;
 
-                    //MessageBox.Show("Disconnected!!");
-                    return;
-                }
-                //Send the Server message for parsing
-                BuildText(recByte, 0, byteCount);
-                //Unless its the first time start Asynchronous Read
-                //Again
-                if (!firstTime)
-                {
-                    AsyncCallback GetMsgCallback = new AsyncCallback(GetMsgServer);
-                    (client.GetStream()).BeginRead(recByte, 0, 1024, GetMsgCallback, this);
-                }
+
+                // Retrieve the format string that was passed as state 
+                // information.
+                string formatString = (string)ar.AsyncState;
+
+                // Define a variable to receive the value of the out parameter.
+                // If the parameter were ref rather than out then it would have to
+                // be a class-level field so it could also be passed to BeginInvoke.
+                int threadId = 0;
+
+                // Call EndInvoke to retrieve the results.
+                //string returnValue = caller.EndInvoke(out threadId, ar);
+                //string returnValue = caller.EndInvoke(out threadId, ar);
+
+
+
+
+                // Use the format string to format the output message.
+                //Console.WriteLine(formatString, threadId, returnValue);
             }
-            catch (Exception ed)
+            catch (Exception ex)
             {
-                Disconnect();
-                //MessageBox.Show("Exception Occured :" + ed.ToString());
+                string e = ex.Message;
             }
+        }
+
+        //public void CallBack(IAsyncResult result)
+        public void CallBack()
+        {         
+           NetworkStream clientStream = client.GetStream();
+           StreamReader sr = new StreamReader(clientStream);
+           while (true)
+           {
+               if (clientStream.DataAvailable)
+               {
+                   string data = "";
+                   int i;
+                   while (sr.Peek() != -1)
+                   {
+                       try
+                       {
+                           //data = sr.Read().ToString();
+                           //data =
+                           //Console.WriteLine("Debug before : " + data);
+                           data += sr.Read().ToString();
+                           data = sr.ReadLine();
+                           
+                           //lastRequest = data;
+                           //byte[] b = System.Text.Encoding.ASCII.GetBytes(bdata);
+                           //data = System.Text.Encoding.UTF8.GetString(b);
+                           
+                       }
+
+                           
+                       catch (Exception e)
+                       {
+                           string ex = e.Message;
+                       }
+                       
+                   }
+                   //string r1 = sr.ReadLine();
+                   //string r = sr.ReadToEnd();
+                   
+               }
+           }
+
         }
 
         //Method to Process Server Response
@@ -107,75 +195,44 @@ namespace PetitBac
                 if (dataByte[i] == 10)
                     continue;
                 //Add the Byte to the StringBuilder in Char format
+                //Exception null -> Déconnection
                 myBuilder.Append(Convert.ToChar(dataByte[i]));
             }
-            char[] spliters = { '@' };
+            //char[] spliters = { '@' };
             //Check if this is the first message received
-            if (firstTime)
-            {
-                //Split the string received at the occurance of '@'
-                string[] tempString = myBuilder.ToString().Split(spliters);
-                //If the Server sent 'sorry' that means there was some error
-                //so we just disconnect the client
-                if (tempString[0] == "sorry")
-                {
-                    object[] temp = { tempString[1] };
-                    //this.Invoke(new displayMessage(DisplayText), temp);
-                    Disconnect();
-                }
-                else
-                {
-                    //Store the Client Guid 
-                    this.userID = tempString[0];
-                    //Loop through array of UserNames
-                    for (int i = 1; i < tempString.Length; i++)
-                    {
-                        object[] temp = { tempString[i] };
-                        //Invoke the AddUser method
-                        //Since we are working on another thread rather than the primary 
-                        //thread we have to use the Invoke method
-                        //to call the method that will update the listbox
-                        //this.Invoke(new displayMessage(AddUser), temp);
-                    }
-                    //Reset the flag
-                    firstTime = false;
-                    //Start the listening process again 
-                    AsyncCallback GetMsgCallback = new AsyncCallback(GetMsgServer);
-                    (client.GetStream()).BeginRead(recByte, 0, 1024, GetMsgCallback, this);
-                }
+            //if (firstTime)
+            //{
+            //    string text = myBuilder.ToString();
 
-            }
-            else
+            //        firstTime = false;
+            //        //Start the listening process again 
+            //        AsyncCallback GetMsgCallback = new AsyncCallback(GetMsgServer);
+            //        (client.GetStream()).BeginRead(recByte, 0, 1024, GetMsgCallback, this);
+
+            //}
+
+            string data = myBuilder.ToString();
+
+            if (data.Split(':')[0] == "Game")
             {
-                //Generally all other messages get passed here
-                //Check if the Message starts with the ClientID
-                //In which case we come to know that its a Server Command
-                if (myBuilder.ToString().IndexOf(this.userID) >= 0)
+                if (data.Split(':')[1] == "All")
                 {
-                    string[] tempString = myBuilder.ToString().Split(spliters);
-                    //If its connected command then add the user to the ListBox
-                    if (tempString[1] == "Connected")
+                    ClientGames.Clear();
+                    string[] allgames = data.Split(':')[2].Split('|');
+                    //client passe a null
+                    foreach (string game in allgames)
                     {
-                        object[] temp = { tempString[2] };
-                        //this.Invoke(new displayMessage(AddUser), temp);
+                        if (!game.Equals(""))
+                        {
+                            Game g = new Game(game);
+                            ClientGames.Add(g);
+                        }
                     }
-                    else if (tempString[1] == "Disconnected")
-                    {
-                        //If its disconnected command then remove the 
-                        //username from the list box
-                        object[] temp = { tempString[2] };
-                        //this.Invoke(new displayMessage(RemoveUser), temp);
-                    }
-                }
-                else
-                {
-                    //For regular messages append a Line terminator
-                    myBuilder.Append("\r\n");
-                    object[] temp = { myBuilder.ToString() };
-                    //Invoke the DisplayText method
-                    //this.Invoke(new displayMessage(DisplayText), temp);
+                    //Faire un refresh de la vue ou un sleep sur un thread
+                    
                 }
             }
+            
             //Empty the StringBuilder
             myBuilder = new System.Text.StringBuilder();
         }

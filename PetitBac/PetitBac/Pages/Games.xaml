@@ -8,8 +8,9 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid Style="{StaticResource ContentRoot}">
         <!-- TODO: set @SelectedSource -->
-        <ListBox Name="AllGames" Height="20" Margin="10,31,22,205"/>
+        <ListBox Name="AllGames" Height="20"/>
         <Label Content="Veuillez sélectionner une partie" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-        <Button Content="Start" HorizontalAlignment="Left" Margin="100,204,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button Content="Start" HorizontalAlignment="Left" Margin="100,204,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
+        <Button Name="Update" Content="Refresh" HorizontalAlignment="Left" Margin="10,204,0,0" VerticalAlignment="Top" Width="75" Click="Update_Click"/>
     </Grid>
 </UserControl>

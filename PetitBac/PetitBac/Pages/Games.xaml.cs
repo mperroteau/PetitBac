@@ -21,7 +21,6 @@ namespace PetitBac.Pages
     /// </summary>
     public partial class Parties : UserControl
     {
-        List<Game> games;
         private byte[] recByte = new byte[1024];
 
         public Parties()
@@ -35,7 +34,7 @@ namespace PetitBac.Pages
             getGames();
             try
             {
-                foreach (Game g in games)
+                foreach (Game g in Client.Instance.ClientGames)
                     this.AllGames.Items.Add(g.GetName());
                     //this.Games_view.Links.Add(new Link
                     //{
@@ -58,9 +57,37 @@ namespace PetitBac.Pages
         {
             //retourne une série de données
             Client.Instance.Send("Game:GetAll");
+            //Client.Instance.CallBack();
             AsyncCallback GetMsgCallback = new AsyncCallback(Client.Instance.GetMsgServer);
-            //(Client.Instance.GetClient().GetStream()).BeginRead(recByte, 0, 1024, GetMsgCallback, this);
+            //AsyncCallback callBack = new AsyncCallback(Client.Instance.CallBack);
+           // Client.Instance.CallBack();
             (Client.Instance.GetClient().GetStream()).BeginRead(recByte, 0, 1024, GetMsgCallback, this);
+            //(Client.Instance.GetClient().GetStream()).BeginRead(recByte, 0, 1024, callBack, this);
+        }
+
+        private void Update_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                this.AllGames.Items.Clear();
+                foreach (Game g in Client.Instance.ClientGames)
+                    this.AllGames.Items.Add(g.GetName());
+                
+                //this.Games_view.Links.Add(new Link
+                //{
+                //    DisplayName = g.GetName(),
+                //    Source = new Uri("/Settings/InterfacciaGrafica.xaml", UriKind.Relative)
+                //});
+            }
+            catch (Exception ex)
+            {
+                string ex2 = ex.Message;
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Client.Instance.Send("Game:Join:"+this.AllGames.SelectedIndex.ToString());
         }
     }
 }

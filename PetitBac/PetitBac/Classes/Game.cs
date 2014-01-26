@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PetitBac
 {
-    class Game
+    public class Game
     {
         string name;
 
@@ -20,9 +20,16 @@ namespace PetitBac
         int roundtimer;
 
         List<Round> listround;
+        private string game;
 
         public Game()
         {
+        }
+
+        public Game(string _name)
+        {
+            // TODO: Complete member initialization
+            this.name = _name;
         }
 
         public string GetName()

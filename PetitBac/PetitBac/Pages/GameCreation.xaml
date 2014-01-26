@@ -11,7 +11,7 @@
             <StackPanel MinWidth="200">
                 <TextBlock Text="CREATION DE PARTIE" Style="{StaticResource Heading2}" />
                 <TextBlock Text="Formulaire de création de la partie" />
-                
+
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="300"/>
@@ -37,7 +37,7 @@
 
                     <TextBlock Grid.Row="1" Grid.Column="0"  Text="Nom de la partie"/>
                     <TextBox Grid.Row="1" Grid.Column="1" Name="GameName"/>
-                    
+
                     <TextBlock Grid.Row="3" Grid.Column="0" Text="Nombre de particiants (MAX)"/>
                     <ListBox Grid.Column="1" Grid.Row="3" SelectedIndex="5">
                         <ListBoxItem Content="10"/>
@@ -50,7 +50,7 @@
                         <ListBoxItem Content="3"/>
                         <ListBoxItem Content="2"/>
                     </ListBox>
-                   
+
 
                     <TextBlock Grid.Row="5" Grid.Column="0" Text="Nombre de tours"/>
                     <ListBox Grid.Column="1" Grid.Row="5" SelectedIndex="5">
@@ -78,7 +78,7 @@
                         <ListBoxItem Content="7"/>
                     </ListBox>
 
-                    
+
 
                     <!--<TextBlock Name="c1" Grid.Row="11" Grid.Column=""/>-->
                     <!--Tableau de catégorie dans un jeu a rentrer manuellement ?-->

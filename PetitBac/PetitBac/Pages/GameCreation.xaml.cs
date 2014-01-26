@@ -47,5 +47,7 @@ namespace PetitBac.Pages
                 NavigationCommands.GoToPage.Execute("Pages/Games.xaml", null);
             }
         }
+
+        
     }
 }

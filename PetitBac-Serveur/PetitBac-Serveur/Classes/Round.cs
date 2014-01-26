@@ -46,7 +46,7 @@ namespace PetitBac_Serveur
             pw.player = p;
             pw.words = _results;
 
-            AllWords.Add(pw);
+            allWords.Add(pw);
         }
 
         public void Count()

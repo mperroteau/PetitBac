@@ -89,6 +89,7 @@ namespace PetitBac_Serveur.Pages
             }
             catch (Exception e)
             {
+                AddLog(e.Message);
                 //serverListener.Stop();
             }
         }
@@ -227,7 +228,7 @@ namespace PetitBac_Serveur.Pages
             {
                 this.ActionServer.Items.Add(n);
             }
-            //this.ActionServer.Items.Add(n);
+            //this.ActionServer.Items.Add(n);C:\Users\Marine\Documents\GitHub\PetitBac\PetitBac-Serveur\PetitBac-Serveur\Classes\Round.cs
             
         }
 
