@@ -10,6 +10,7 @@ namespace PetitBac_Serveur
     {
 
         string letter;
+        int number;
         bool isfinish;
 
         Game game;
@@ -23,11 +24,18 @@ namespace PetitBac_Serveur
             public List<string> words;
         }
         
-        public Round(string _letter)
+        public Round(Game _game,int _number, string _letter)
         {
+            this.game = _game;
+            this.number = _number;
             this.letter = _letter;
-
             isfinish = false;
+            foreach(Player p in game.GetPlayers())
+            {
+                p.Send("Game:NewRound:"+this.number+":"+this.letter);
+            }
+            
+            
         }
 
         public string GetLetter()

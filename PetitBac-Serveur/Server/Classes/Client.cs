@@ -41,11 +41,15 @@ namespace PetitBac_Serveur
         private StringBuilder myBuilder = new StringBuilder();
         private TcpClient myClient;
         private string name, clientID;
+        private string lastlog;
 
         public Client(TcpClient myClient)
         {
             this.myClient = myClient;
         }
+
+        public Client()
+        { }
         //Connect method used to connect to Client
         public void Connect()
         {
@@ -188,11 +192,23 @@ namespace PetitBac_Serveur
                 //Check is a line terminator is encountered
                 if (dataByte[i] == 13)
                 {
-
+                    string datareceive = myBuilder.ToString();
                     if (firstTime)
                     {
+                        if(lastlog!=null)
+                        {
+                            if (myBuilder.ToString().StartsWith(lastlog))
+                            {
+                                datareceive = datareceive.Replace(lastlog, null);
+                            }
+                        }
+
+                        lastlog = datareceive;
                         //If first time then call the Checkname method
-                        CheckName(myBuilder.ToString().Trim());
+                        if (datareceive.StartsWith("Player:New:"))
+                        {
+                            CheckName(datareceive.Trim());
+                        }
                         firstTime = false;
                     }
                     else if (MessageReceived != null && connected)
@@ -200,7 +216,7 @@ namespace PetitBac_Serveur
                         //Else raise the MessageReceived Event 
                         //and pass the message along
                         MessageEventArgs e = new MessageEventArgs();
-                        e.Message = (myBuilder.ToString()).Trim();
+                        e.Message = (datareceive).Trim();
                         MessageReceived(this, e);
                     }
                     //Clear the StringBuilder

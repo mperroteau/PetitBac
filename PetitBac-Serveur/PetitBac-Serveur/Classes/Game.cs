@@ -9,49 +9,26 @@ namespace PetitBac_Serveur
     public class Game
     {
         string name;
+        int countround;
 
         Player leader;
         List<Player> listplayer;
 
         List<string> letters = null;
-
-        int minPlayer;
-        int maxPlayer;
-
-        int roundnumber;
-        int roundtimer;
-
         List<Round> listround;
 
-        public Game(String _name, Player _leader, int _minPlayer, int _maxPlayer, int _roundnumber, int _roundtimer)
+        string dico = "ABCDEFGHJKLMNOPQRSTUVWXYZ";
+
+        public Game(String _name, Player _leader, List<Player> _listplayer)
         {
             this.name = _name;
             this.leader = _leader;
+            this.listplayer = _listplayer;
+            this.countround = 1;
+            
+            Round firstround = new Round(this,countround, GetRandomLetter());
 
-            this.minPlayer = _minPlayer;
-            this.maxPlayer = _maxPlayer;
-
-            this.roundnumber = _roundnumber;
-            this.roundtimer = _roundtimer;
-
-            this.listplayer = new List<Player>();
-            this.listplayer.Add(leader);
-        }
-
-        public Game(String _name, Player _leader)
-        {
-            this.name = _name;
-            this.leader = _leader;
-
-            //this.minPlayer = _minPlayer;
-            //this.maxPlayer = _maxPlayer;
-
-            //this.roundnumber = _roundnumber;
-            //this.roundtimer = _roundtimer;
-
-            this.listplayer = new List<Player>();
-            this.listplayer.Add(leader);
-            Data.Instance.ListGame().Add(this);
+            //Data.Instance.ListGame().Add(this);
         }
 
         public string GetName()
@@ -77,6 +54,15 @@ namespace PetitBac_Serveur
                 }
             }
             return finalscore;
+        }
+
+        private string GetRandomLetter()
+        {
+            Random rand = new Random();
+            int max = dico.Length;
+            int index = rand.Next(0, dico.Length);
+            
+            return dico[index].ToString();
         }
     }
 }

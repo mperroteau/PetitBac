@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>95c819dc-2847-40eb-acee-edca820caed5</ProjectGuid>
+    <ProjectGuid>{601A4711-DFFB-4245-91BD-B29141643928}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Server</RootNamespace>
@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FirstFloor.ModernUI">
+      <HintPath>..\packages\ModernUI.WPF.1.0.5\lib\net45\FirstFloor.ModernUI.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -58,6 +61,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Classes\Client.cs" />
+    <Compile Include="Classes\Data.cs" />
+    <Compile Include="Classes\Game.cs" />
+    <Compile Include="Classes\Player.cs" />
+    <Compile Include="Classes\Round.cs" />
+    <Compile Include="Classes\Score.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -77,21 +86,25 @@
       <DependentUpon>SettingsAppearance.xaml</DependentUpon>
     </Compile>
     <Compile Include="Content\SettingsAppearanceViewModel.cs" />
-    <Page Include="Pages\Home.xaml">
-      <SubType>Designer</SubType>
+    <Page Include="Pages\Server.xaml">
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Pages\Settings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Compile Include="Pages\Home.xaml.cs">
-      <DependentUpon>Home.xaml</DependentUpon>
+    <Compile Include="NetSocket.cs" />
+    <Compile Include="Pages\Server.xaml.cs">
+      <DependentUpon>Server.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\Settings.xaml.cs">
       <DependentUpon>Settings.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -24,6 +24,10 @@ namespace PetitBac_Serveur
 
         }
 
+        public Player()
+        {
+        }
+
         public string GetLastMessage()
         {
             return this.lastmessage;

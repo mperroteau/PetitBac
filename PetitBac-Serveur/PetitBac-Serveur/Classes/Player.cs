@@ -20,7 +20,7 @@ namespace PetitBac_Serveur
         {
             //this.name = _n;
             this.currentGame = null;
-            Data.Instance.AddPlayer(this);
+            //Data.Instance.AddPlayer(this);
 
         }
 
@@ -42,7 +42,7 @@ namespace PetitBac_Serveur
                 return true;
         }
 
-
+        
         
     }
 

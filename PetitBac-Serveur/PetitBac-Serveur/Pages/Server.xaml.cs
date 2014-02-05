@@ -101,23 +101,19 @@ namespace PetitBac_Serveur.Pages
             //Add the client to the Hashtable
             //Ajouter le client a la liste
             Data.Instance.AddPlayer(currentplayer);
-            //clientTable.Add(currentplayer.ID, currentplayer);
-
-            Player tempClient;
-            
+            currentplayer.Send("Player:All:"+Data.Instance.GetStringPlayers());
+            //clientTable.Add(currentplayer.ID, currentplayer);            
             //AddLog("Client connecté:" + temp.UserName);
-            string uname = currentplayer.Name;
             AddLog("Nouveau joueur : " + currentplayer.Name);
 
 
             //loop through each client and announce the 
             //client connected
 
-            //foreach (DictionaryEntry d in clientTable)
-            //{
-            //    tempClient = (Player)d.Value;
-            //    tempClient.Send(tempClient.ID + "@Connected@" + currentplayer.Name);
-            //}
+            foreach (Player tempPlayer in Data.Instance.GetListPlayer())
+            {
+                tempPlayer.Send("Player:New:"+currentplayer.Name);
+            }
         }
 
         public void OnDisconnected(object sender, EventArgs e)
@@ -151,7 +147,6 @@ namespace PetitBac_Serveur.Pages
         {
             //Message sender client
             Player currentplayer = (Player)sender;
-            int counter = 0;
             string commande = e.Message;
 
             //Si les messages ont mergé, divise les deux messages
@@ -164,36 +159,8 @@ namespace PetitBac_Serveur.Pages
             }
             currentplayer.SetLastMessage(e.Message);
 
-           
-            if (commande.Split(new Char[] { ':' })[0] == "Game")
-                {
-                    if (commande.Split(new Char[] { ':' })[1] == "New")
-                    {
-                        this.AddLog("Le joueur " + currentplayer.Name + " a crée un nouveau jeu : " + commande.Split(new Char[] { ':' })[2]);
-                        Game newgame = new Game(commande.Split(new Char[] { ':' })[2], currentplayer);
-                        this.AddLog("Debug : " + commande);
-                        this.Dispatcher.BeginInvoke(this.DataArrived, sender, e);
-                        //currentplayer.Send("Game:All:" + Data.Instance.ListPlayers());
-                        //e.Message = null;
-
-                        return;
-                    }
-
-                    if (commande.Split(new Char[] {':'})[1] == "GetAll")
-                    {
-                        string sendcontent = "Game:All:";
-                        foreach (Game g in Data.Instance.ListGame())
-                        {
-                            counter++;
-                            if (counter != Data.Instance.ListGame().Count)
-                                sendcontent += g.GetName() + "|";
-                            else
-                                sendcontent += g.GetName();
-                        }
-                        currentplayer.Send(sendcontent);
-                        this.AddLog("Debug Send : " + sendcontent);
-                    }
-                }
+            TextAnalysis(currentplayer, commande, sender, e);
+            
             e = new MessageEventArgs();
             //AddLog(currentplayer.Name + " :" + e.Message);
             
@@ -209,6 +176,74 @@ namespace PetitBac_Serveur.Pages
 
             //C'est le client qui va demander au serveur
         }
+
+        private void TextAnalysis(Player currentplayer, string commande, object sender, EventArgs e)
+        {
+            int counter = 0;
+
+            
+            if (commande.Split(new Char[] { ':' })[0] == "Game")
+            {
+                #region old
+                if (commande.Split(new Char[] { ':' })[1] == "New")
+                {
+                    this.AddLog("Le joueur " + currentplayer.Name + " a crée un nouveau jeu : " + commande.Split(new Char[] { ':' })[2]);
+                    //Game newgame = new Game(commande.Split(new Char[] { ':' })[2], currentplayer);
+                    this.AddLog("Debug : " + commande);
+                    this.Dispatcher.BeginInvoke(this.DataArrived, sender, e);
+                    //currentplayer.Send("Game:All:" + Data.Instance.ListPlayers());
+                    //e.Message = null;
+
+                    return;
+                }
+
+                if (commande.Split(new Char[] { ':' })[1] == "GetAll")
+                {
+                    string sendcontent = "Game:All:";
+                    foreach (Game g in Data.Instance.ListGame())
+                    {
+                        counter++;
+                        if (counter != Data.Instance.ListGame().Count)
+                            sendcontent += g.GetName() + "|";
+                        else
+                            sendcontent += g.GetName();
+                    }
+                    currentplayer.Send(sendcontent);
+                    this.AddLog("Debug Send : " + sendcontent);
+                }
+                #endregion
+
+                if (commande.Split(new Char[] { ':' })[1] == "Start")
+                {
+                    this.AddLog("Le joueur " + currentplayer.Name + " a lancé la partie");
+                    string listcat = commande.Split(new Char[] { ':' })[2];
+                    List<Player> playerlist = new List<Player>();
+                    foreach (Player p in Data.Instance.GetListPlayer()){
+                        playerlist.Add(p);
+                    }
+                    foreach (Player r in playerlist){
+                        r.Send("Game:Start"+currentplayer.Name);
+                    }
+                    Game newgame = new Game(commande.Split(new Char[] { ':' })[2], currentplayer, playerlist);
+                    this.Dispatcher.BeginInvoke(this.DataArrived, sender, e);
+
+                    return;
+                }
+                if (commande.Split(new Char[] { ':' })[0] == "Player")
+                {
+                    if (commande.Split(new Char[] { ':' })[1] == "NewMessage"){
+                        foreach (Player p in Data.Instance.GetListPlayer())
+                        {
+                            p.Send("Player:NewMessage:" + currentplayer + "" + commande.Split(new Char[] { ':' })[2]);
+                        }
+                    }
+                
+                }
+            }
+            
+        }
+
+
         //Method to add the string to the server log
         public void AddLog(string msg)
         {

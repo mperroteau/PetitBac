@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PetitBac_Serveur
 {
-    class Score
+    public class Score
     {
         string name;
         string round;

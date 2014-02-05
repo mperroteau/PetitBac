@@ -49,7 +49,6 @@ namespace PetitBac_Serveur
         //Connect method used to connect to Client
         public void Connect()
         {
-
             //Assign a new Guid
             this.clientID = Guid.NewGuid().ToString();
             //Start Receiving the Messages
@@ -130,20 +129,20 @@ namespace PetitBac_Serveur
         {
             if (name.Length > 20)
             {
-                Send("Désolé@name est trop long, veuillez entrer un pseudo de moins de 20 caractères!!");
+                Send("Error:Login:TooLong");
                 Disconnect();
                 return;
             }
-            else if (name.IndexOf("@") >= 0)
-            {
-                Send("Désolé@Invalid Character in name!!");
-                Disconnect();
-                return;
-            }
+            //else if (name.IndexOf("@") >= 0)
+            //{
+            //    Send("Désolé@Invalid Character in name!!");
+            //    Disconnect();
+            //    return;
+            //}
             else if (!ClientList.AddClient(name, this.clientID))
             {
                 //Check if the name is duplicate
-                Send("exist");
+                Send("Error:Login:Exist");
                 Disconnect();
                 return;
             }
@@ -154,14 +153,14 @@ namespace PetitBac_Serveur
                 this.name = name.Split(':')[2];
                 //Build the names list and send it to the client
                 StringBuilder userList = new StringBuilder();
-                userList.Append(this.clientID);
-                Hashtable clientTable = ClientList.GetList;
-                foreach (DictionaryEntry d in clientTable)
-                {
-                    //Seperate the names by a '@'
-                    userList.Append("@");
-                    userList.Append(d.Value.ToString());
-                }
+                //userList.Append(this.clientID);
+                //Hashtable clientTable = ClientList.GetList;
+                //foreach (DictionaryEntry d in clientTable)
+                //{
+                //    //Seperate the names by a '@'
+                //    userList.Append("@");
+                //    userList.Append(d.Value.ToString());
+                //}
                 //Start the llistening
                 lock (myClient.GetStream())
                 {
@@ -169,7 +168,8 @@ namespace PetitBac_Serveur
                     myClient.GetStream().BeginRead(recByte, 0, 1024, GetStreamMsgCallback, null);
                 }
                 //Send the Userlist
-                Send(userList.ToString());
+                //Send(userList.ToString());
+                //Send("Player:All
                 //Raise the Connected Event
                 if (Connected != null)
                 {

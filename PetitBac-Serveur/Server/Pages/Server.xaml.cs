@@ -1,4 +1,5 @@
-﻿using PetitBac_Serveur.NetSocket;
+﻿
+using PetitBac_Serveur.NetSocket;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,6 +29,7 @@ namespace PetitBac_Serveur.Pages
 
         private delegate void Safe(string n);
         private Safe SafeCall;
+        Game currentGame = new Game();
 
         EventHandler<NetSockConnectionRequestEventArgs> ConnectionRequested;
         EventHandler<NetSockDataArrivalEventArgs> DataArrived;
@@ -132,6 +134,14 @@ namespace PetitBac_Serveur.Pages
                 //Remove the client from the ClientList class
                 ClientList.RemoveClient(currentplayer.Name, currentplayer.ID);
                 Client tempClient;
+
+                if (Data.Instance.GetListPlayer().Count>=1)
+                {
+                    foreach(Player p in Data.Instance.GetListPlayer())
+                    {
+                        p.Send("Player:All:" + Data.Instance.GetStringPlayers());
+                    }
+                }
                 
                 //Announce to all the existing clients
 
@@ -222,23 +232,65 @@ namespace PetitBac_Serveur.Pages
                         playerlist.Add(p);
                     }
                     foreach (Player r in playerlist){
-                        r.Send("Game:Start"+currentplayer.Name);
+                        r.Send("Game:Start:"+currentplayer.Name+":"+commande.Split(':')[2]);
                     }
-                    Game newgame = new Game(commande.Split(new Char[] { ':' })[2], currentplayer, playerlist);
+                    currentGame = new Game(commande.Split(new Char[] { ':' })[2], currentplayer, playerlist);
                     this.Dispatcher.BeginInvoke(this.DataArrived, sender, e);
 
                     return;
                 }
-                if (commande.Split(new Char[] { ':' })[0] == "Player")
+
+                if (commande.Split(new Char[] { ':' })[1] == "NewRound")
                 {
-                    if (commande.Split(new Char[] { ':' })[1] == "NewMessage"){
-                        foreach (Player p in Data.Instance.GetListPlayer())
-                        {
-                            p.Send("Player:NewMessage:" + currentplayer + "" + commande.Split(new Char[] { ':' })[2]);
-                        }
+                    if (currentGame.currentRound.GetNumber() < 5)
+                    {
+                        currentGame.NewRound();
+                        AddLog("Nouveau tour");
                     }
-                
+                    else
+                    {
+                        string final = null;
+                        foreach (Player p in currentGame.GetPlayers())
+                        {
+                            final += p.Name+";"+currentGame.GetFinalScore(p)+"|";
+                        }
+
+                        foreach (Player p in currentGame.GetPlayers())
+                        {
+                            p.Send("Game:End:" + final);
+                        }
+                        AddLog("Fin de la partie");
+                    }
                 }
+
+                if (commande.Split(new Char[] { ':' })[1] == "Stop")
+                {
+                    foreach (Player p in currentGame.GetPlayers())
+                    {
+                        p.Send("Game:Stop");
+                    }
+                }
+                if (commande.Split(new Char[] { ':' })[1] == "RoundResult")
+                {
+                    currentGame.currentRound.AddPlayerWord(currentplayer, commande.Split(':')[2]);
+                    currentGame.currentRound.Count();
+                    foreach (Player p in currentGame.GetPlayers())
+                    {
+                        p.Send("Game:RoundResult:"+currentGame.currentRound.GetResult());
+                    }
+                }
+                
+            }
+            if (commande.Split(new Char[] { ':' })[0] == "Player")
+            {
+                if (commande.Split(new Char[] { ':' })[1] == "NewMessage")
+                {
+                    foreach (Player p in Data.Instance.GetListPlayer())
+                    {
+                        p.Send("Player:NewMessage:" + currentplayer.Name + " : " + commande.Split(new Char[] { ':' })[2]);
+                    }
+                }
+
             }
             
         }

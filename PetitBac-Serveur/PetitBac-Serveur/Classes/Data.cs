@@ -32,6 +32,27 @@ namespace PetitBac_Serveur
             serverPlayers.Remove(p);
         }
 
+        public string GetStringPlayers()
+        {
+            string r = null;
+            int counter = 0;
+            foreach (Player p in serverPlayers)
+            {
+                counter++;
+                if (counter != Data.Instance.ListGame().Count)
+                    r += p.Name + "|";
+                else
+                    r += p.Name;
+            }
+            return r;
+
+        }
+
+        public List<Player> GetListPlayer()
+        {
+            return serverPlayers;
+        }
+
         static Data() { Instance = new Data(); }
  
         
