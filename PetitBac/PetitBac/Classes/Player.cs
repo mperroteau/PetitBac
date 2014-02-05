@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PetitBac
 {
-    class Player
+    public class Player
     {
 
         string name { get;  set; }
